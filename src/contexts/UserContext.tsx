@@ -1,5 +1,5 @@
 import { UserContextType, UserForm, UserModel } from "@/@types/user";
-import USERS from "@/utils/const/MockUpUser";
+import { getLocalStorage, setLocalStorage } from "@/utils/localStorage";
 import { generateRandomString } from "@/utils/string";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
@@ -17,21 +17,22 @@ export const UserContext = React.createContext<UserContextType>({
 const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [users, setUsers] = useState<UserModel[]>(USERS);
+  const [users, setUsers] = useState<UserModel[]>([]);
   const [selectCard, setSelectCard] = useState<string | null>(null); // store id of select card
 
   // Get the Full Info of Select Card
-  // Noted: useMemo use for calculate below operation base on selectCard
-  // Because by nature react will run all the operation (function) in component
-  const selectCardInfo = useMemo(() => {
-    return users.find((user) => user.id === selectCard);
-  }, [selectCard]);
+  const selectCardInfo = users.find((user) => user.id === selectCard);
 
   const addNewUser = (user: UserForm) => {
     // Generate 5 character random string
     const id = generateRandomString(5);
     const newUser = { ...user, id };
-    setUsers((prev) => [...prev, newUser]);
+    setUsers((prev) => {
+      const newAllUsers = [...prev, newUser];
+      setLocalStorage("user", newAllUsers);
+
+      return newAllUsers;
+    });
   };
 
   const updateUser = (id: string, newUpdateUser: UserForm) => {
@@ -47,27 +48,28 @@ const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       // Else, return the existed user
       return user;
     });
+
+    setLocalStorage("user", newUsers);
     setUsers(newUsers);
   };
 
   const deleteUser = (id: string) => {
     const remainUsers = users.filter((user) => user.id !== id);
+
+    setLocalStorage("user", remainUsers);
     setUsers(remainUsers);
   };
 
   const clearAllUsers = () => {
+    setLocalStorage("user", []);
     setUsers([]);
   };
 
   // Check if the users data is in local storage for the first render
   useEffect(() => {
-    setUsers(JSON.parse(localStorage.getItem("user") || "[]"));
+    const userStorage = getLocalStorage("user") ? getLocalStorage("user") : [];
+    setUsers(userStorage);
   }, []);
-
-  // Update the users data in local storage if users context state modified
-  useEffect(() => {
-    localStorage.setItem("user", JSON.stringify(users));
-  }, [users]);
 
   const value = {
     users,

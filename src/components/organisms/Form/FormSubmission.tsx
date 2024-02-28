@@ -1,9 +1,10 @@
 import React, { useState, useRef, FormEventHandler, ChangeEvent } from "react";
-import { InputFile, InputText, Button } from "../atoms";
+import { InputFile, InputText, Button } from "../../atoms";
 import * as Yup from "yup";
 import { UserValidateSchema } from "@/schema/UserSchema";
 import { UserForm } from "@/@types/user";
 import { useUser } from "@/contexts/UserContext";
+import { useModal } from "@/contexts/ModalContext";
 
 const DEFAULT_FORM_VALUE = {
   name: "",
@@ -12,10 +13,10 @@ const DEFAULT_FORM_VALUE = {
 };
 
 const FormSubmission = () => {
-  const { selectCard, selectCardInfo } = useUser();
+  const { selectCard, selectCardInfo, updateUser, addNewUser } = useUser();
+  const {setIsOpen} = useModal()
 
-  // If selectCard has value, means the form is update
-  // Else: form is Add
+  // If selectCard has value, means the form is update. Else: form is Add
   const [formData, setFormData] = useState<UserForm>(
     !selectCard ? DEFAULT_FORM_VALUE : (selectCardInfo as UserForm)
   );
@@ -25,25 +26,28 @@ const FormSubmission = () => {
   // Access File Element
   const inputFileRef = useRef<HTMLInputElement>(null);
 
-  // Form Submission Action
+  // Form Submission Action (Update or Create)
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     // TODO:
     // 1. Validate Form Data
     // 2. Check If There is Card Selected.
     //    If Yes: Update The User, Else: Add New User
-    // 3. Reset the Form Data
-    // 4. Clear Errors After Successful Submission
+    // 3. Clear Errors After Successful Submission
+    // 4. Close Modal
 
     try {
       await UserValidateSchema.validate(formData, { abortEarly: false });
 
-      e.currentTarget.reset();
-      if (inputFileRef.current) {
-        inputFileRef.current.value = "";
+      if (selectCard){
+        updateUser(selectCardInfo?.id as string, formData)
+      }else {
+        addNewUser(formData)
       }
-
-      setErrors({}); // Clear errors after successful submission
+      
+      // Clear errors after successful submission
+      setErrors({}); 
+      setIsOpen(false)
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const newErrors: { [key: string]: string } = {};
@@ -114,7 +118,9 @@ const FormSubmission = () => {
           {errors.image && <p style={{ color: "red" }}>{errors.image}</p>}
           <div className="flex flex-col">
             <Button type="submit" className="mt-2" size="md" color="primary">
-              Create
+              {
+                selectCard ? "Update" : "Create"
+              }
             </Button>
           </div>
         </div>

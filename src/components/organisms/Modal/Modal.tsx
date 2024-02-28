@@ -1,24 +1,27 @@
 "use client";
 import React, { ReactNode, useState } from "react";
 import {
-  Button,
   FloatingButton,
-  InputText,
-  InputFile,
 } from "@/components/atoms";
+import { useModal } from "@/contexts/ModalContext";
+
 interface ModalProps {
   children: ReactNode;
 }
+
+
 const Modal: React.FC<ModalProps> = ({ children }) => {
-  const [showModal, setShowModal] = useState(false);
+  const {isOpen, setIsOpen} = useModal()
+
+  console.log('modal', isOpen)
 
   return (
     <>
       <div className="relative z-50">
         <FloatingButton
-          position="bottom-left"
+          position="bottom-right"
           className="text-white bg-neutral "
-          onClick={() => setShowModal(true)}
+          onClick={() => setIsOpen(true)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -35,14 +38,14 @@ const Modal: React.FC<ModalProps> = ({ children }) => {
             />
           </svg>
         </FloatingButton>
-        {showModal && (
+        {isOpen && (
           <div className="absolute inset-0 bg-black bg-opacity-90 flex justify-center items-center h-screen">
             <div className="w-[800px] h-[600px] bg-[#1D232A] rounded-2xl flex justify-center items-center flex-col">
               {children}
               <div className="fixed top-44 right-[560px]">
                 <button
                   className="w-[40px] h-[40px] flex justify-center items-center rounded-full m-2 bg-red-800 text-black"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => setIsOpen(false)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -60,16 +63,7 @@ const Modal: React.FC<ModalProps> = ({ children }) => {
                   </svg>
                 </button>
               </div>
-              {/* <div>
-                <Button
-                  onClick={() => setShowModal(false)}
-                  className="mt-2 w-[400px]"
-                  size="md"
-                  color="primary"
-                >
-                  Create
-                </Button>
-              </div> */}
+              
             </div>
           </div>
         )}

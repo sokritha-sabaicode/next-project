@@ -1,2 +1,4 @@
 import { Modal } from "./Modal";
-export {Modal}
+import { FormSubmission } from "./Form";
+
+export { Modal, FormSubmission };

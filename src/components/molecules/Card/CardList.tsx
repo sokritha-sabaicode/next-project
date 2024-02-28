@@ -28,8 +28,10 @@ const CardList: React.FC<CardListProps> = ({ search }) => {
               : items.name &&
                   items.name.toLowerCase().includes(search.toLowerCase());
           })
-          .map((item) => (
-            <Card item={item} />
+          .map((item, idx) => (
+            <React.Fragment key={idx}>
+              <Card item={item} />
+            </React.Fragment>
           ))}
       </div>
     </>

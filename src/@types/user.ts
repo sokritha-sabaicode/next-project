@@ -11,7 +11,7 @@ export interface UserContextType {
   users: UserModel[];
   selectCard: string | null;
   selectCardInfo: UserModel | undefined;
-  addNewUser: (user: UserModel) => void;
+  addNewUser: (user: UserForm) => void;
   updateUser: (id: string, newUpdateUser: UserForm) => void;
   deleteUser: (id: string) => void;
   clearAllUsers: () => void;
