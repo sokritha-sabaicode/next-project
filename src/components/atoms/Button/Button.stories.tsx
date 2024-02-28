@@ -6,8 +6,10 @@ const meta: Meta<typeof Button> = {
   component: Button,
   parameters: {
     layout: "centered",
+    a11y: {
+      
+    }
   },
-  tags: ["autodocs"],
 };
 
 export default meta;
@@ -19,5 +21,6 @@ export const Default: Story = {
     color: "primary",
     size: "md",
     rounded: "none",
+  
   },
 };

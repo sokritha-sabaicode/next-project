@@ -70,7 +70,7 @@ const Button: React.FC<ButtonProps> = ({
       case "neutral":
         return "bg-[#232A33]";
       case "primary":
-        return "bg-[#646EE4]";
+        return "bg-[#4F5BE3]";
       case "secondary":
         return "bg-[#EF47BC]";
       case "info":
