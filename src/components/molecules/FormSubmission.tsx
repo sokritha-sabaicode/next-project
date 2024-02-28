@@ -1,49 +1,48 @@
 import React, { useState, useRef, FormEventHandler, ChangeEvent } from "react";
 import { InputFile, InputText, Button } from "../atoms";
-import { v4 as uuidv4 } from "uuid";
 import * as Yup from "yup";
 import { UserValidateSchema } from "@/schema/UserSchema";
+import { UserForm } from "@/@types/user";
+import { useUser } from "@/contexts/UserContext";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  image: string;
-}
+const DEFAULT_FORM_VALUE = {
+  name: "",
+  email: "",
+  image: "",
+};
 
-interface AddFormProps {
-  user: User[];
-  setUser: React.Dispatch<React.SetStateAction<User[]>>;
-}
+const FormSubmission = () => {
+  const { selectCard, selectCardInfo } = useUser();
 
-const AddForm: React.FC<AddFormProps> = ({ user, setUser }) => {
-  const [enterValue, setEnterValue] = useState<User>({
-    id: "",
-    name: "",
-    email: "",
-    image: "",
-  });
+  // If selectCard has value, means the form is update
+  // Else: form is Add
+  const [formData, setFormData] = useState<UserForm>(
+    !selectCard ? DEFAULT_FORM_VALUE : (selectCardInfo as UserForm)
+  );
+
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Access File Element
   const inputFileRef = useRef<HTMLInputElement>(null);
 
+  // Form Submission Action
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+    // TODO:
+    // 1. Validate Form Data
+    // 2. Check If There is Card Selected.
+    //    If Yes: Update The User, Else: Add New User
+    // 3. Reset the Form Data
+    // 4. Clear Errors After Successful Submission
+
     try {
-      await UserValidateSchema.validate(enterValue, { abortEarly: false });
-      const newUser = { ...enterValue, id: uuidv4() };
-      console.log(newUser);
-      setUser((prevUsers) => [...prevUsers, newUser]);
-      setEnterValue({
-        id: "",
-        name: "",
-        email: "",
-        image: "",
-      });
-      
+      await UserValidateSchema.validate(formData, { abortEarly: false });
+
       e.currentTarget.reset();
       if (inputFileRef.current) {
         inputFileRef.current.value = "";
       }
+
       setErrors({}); // Clear errors after successful submission
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -54,14 +53,13 @@ const AddForm: React.FC<AddFormProps> = ({ user, setUser }) => {
           }
         });
         setErrors(newErrors);
-       
       }
     }
   };
 
   const onChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEnterValue({ ...enterValue, [name]: value });
+    setFormData({ ...formData, [name]: value });
     if (errors[name]) {
       setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     }
@@ -71,7 +69,7 @@ const AddForm: React.FC<AddFormProps> = ({ user, setUser }) => {
     const imageFile = event.target.files && event.target.files[0];
     if (imageFile) {
       const imageUrl = URL.createObjectURL(imageFile);
-      setEnterValue({ ...enterValue, image: imageUrl });
+      setFormData({ ...formData, image: imageUrl });
     }
   };
 
@@ -84,7 +82,7 @@ const AddForm: React.FC<AddFormProps> = ({ user, setUser }) => {
             placeholder="Username"
             type="text"
             name="name"
-            value={enterValue.name}
+            value={formData.name}
             onChange={onChangeInput}
           />
           {errors.name && (
@@ -97,7 +95,7 @@ const AddForm: React.FC<AddFormProps> = ({ user, setUser }) => {
             placeholder="example@gmail.com"
             type="email"
             name="email"
-            value={enterValue.email}
+            value={formData.email}
             onChange={onChangeInput}
           />
           {errors.email && (
@@ -125,4 +123,4 @@ const AddForm: React.FC<AddFormProps> = ({ user, setUser }) => {
   );
 };
 
-export { AddForm };
+export { FormSubmission };

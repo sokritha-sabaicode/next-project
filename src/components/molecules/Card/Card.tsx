@@ -1,33 +1,75 @@
 import React from "react";
 import Image from "next/image";
-interface CardProps {
-  id: string;
-  name: string;
-  email: string;
-  image: string;
-}
-const Card: React.FC<CardProps> = ({ id, name, email, image }) => {
+import { UserModel } from "@/@types/user";
+import Swal from "sweetalert2";
+import { useUser } from "@/contexts/UserContext";
+
+const Card = ({ item }: { item: UserModel }) => {
+  const { deleteUser, setSelectCard, selectCard } = useUser();
+
+  const handleDelete = (id: string) => {
+    Swal.fire({
+      title: "Are you sure bro?",
+      text: "This will delete user from your card lists!",
+      icon: "warning",
+      showCancelButton: true,
+      reverseButtons: true,
+      confirmButtonColor: "#FF5861",
+      cancelButtonColor: "#00B5FF",
+      confirmButtonText: "Delete",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteUser(id);
+        Swal.fire(
+          "Deleted!",
+          "The user has been deleted successfully .",
+          "success"
+        );
+      }
+    });
+  };
+
   return (
     <>
-      <div className="flex justify-center items-center h-screen">
-        <div className="card mt-5 bg-base-100 shadow-xl w-[500px] border-2 border-blue-300">
-          <div className="card-body" key={id}>
+      <div
+        className="flex justify-center items"
+        onClick={() => {
+          if (selectCard === item.id) {
+            setSelectCard(""); // Unselect Card
+            return; // Close the function
+          }
+          setSelectCard(item.id);
+        }}
+      >
+        <div
+          className={`card mt-5 bg-base-100 shadow-xl w-[600px] border-2 border-blue-300 ${
+            selectCard === item.id && "bg-base-300"
+          }`}
+        >
+          <div className="card-body">
             <div className="flex items-center">
               <Image
-                src="/vercel.svg"
+                src={item.image as string}
                 height={80}
                 width={80}
-                className="rounded-full w-[50px] h-[50px]"
+                className="rounded-full object-cover w-[80px] h-[80px] mr-2"
                 alt="Avatar"
               />
               <div className="flex justify-center flex-col ml-2">
-                <h1 className="card-title">Dara</h1>
-                <h2 className="mb-2">dara@gmail.com</h2>
+                <h1 className="card-title">{item.name}</h1>
+                <h2 className="mb-2">{item.email}</h2>
               </div>
             </div>
             <div className="card-actions justify-end">
-              <button className="btn btn-info w-[100px]">Preview</button>
-              <button className="btn btn-error w-[100px]">Delete</button>
+              <button
+                className="btn btn-error w-[100px]"
+                onClick={(e) => {
+                  handleDelete(item.id);
+                  e.stopPropagation(); // Prevent the event fireup to the ancestor
+                }}
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
