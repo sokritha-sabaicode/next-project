@@ -14,8 +14,10 @@ interface ButtonProps {
     | "error";
   type?: "button" | "submit" | "reset";
   rounded?: "none" | "base" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "full";
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  onClick?: ()=> void;
+  disabled?: boolean
 }
+
 const Button: React.FC<ButtonProps> = ({
   children,
   className,
@@ -24,6 +26,7 @@ const Button: React.FC<ButtonProps> = ({
   color = "neutral",
   type = "button",
   onClick,
+  ...props
 }) => {
   const ButtonSize = (size: string) => {
     switch (size) {
@@ -86,16 +89,22 @@ const Button: React.FC<ButtonProps> = ({
     }
   };
 
+  const isDisabled = () => {
+    return props.disabled ? `bg-opacity-40` : ""
+  }
 
   const getButtonSize = ButtonSize(size);
   const getButtonColor = ButtonColor(color);
   const getButtonRounded = ButtonRounded(rounded);
+  const getDisabled = isDisabled();
+
   return (
     <>
       <button
         onClick={onClick}
         type={type}
-        className={`${getButtonRounded} ${getButtonColor} ${getButtonSize} ${className}`}
+        className={`${getButtonRounded} ${getButtonColor} ${getButtonSize} ${className} ${getDisabled}`}
+        {...props}
       >
         {children}
       </button>
